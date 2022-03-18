@@ -1,0 +1,72 @@
+{% extends "admin/base_admin.html" %}
+{% block head %}
+  <title>新闻管理-首页</title>
+{% endblock %}
+{% block content %}
+
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>编号</th>
+      <th>新闻标题</th>
+      <th>类别</th>
+      <th>添加时间</th>
+      <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in page_data.items %}
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>{{ item.title }}</td>
+        <td>{{ item.news_type }}</td>
+        <td>{{ item.created_at }}</td>
+        <td><a class="btn btn-info" href="{{ url_for('news_update', pk=item.id) }}">修改</a>
+          <a class="btn btn-danger" data-url="{{ url_for('news_delete', pk=item.id) }}" href="javscript:;">删除</a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <nav>
+    <span>总共{{ page_data.pages }}页，总共{{ page_data.total }}条记录</span>
+    <ul class="pagination">
+      {% if page_data.has_prev %}
+        <li><a href="{{ url_for('admin', page=page_data.prev_num) }}?title={{ title }}">&raquo;</a></li>
+      {% else %}
+        <li class="disabled"><a href="javscript:;">&raquo;</a></li>
+      {% endif %}
+      {% for page in page_data.iter_pages() %}
+        {% if page == page_data.page %}
+          <li class="active"><a href="javscript:;">{{ page }}</a></li>
+        {% else %}
+          <li><a href="{{ url_for('admin', page=page) }}?title={{ title }}">{{ page }}</a></li>
+        {% endif %}
+      {% endfor %}
+      {% if page_data.has_next %}
+        <li><a href="{{ url_for('admin', page=page_data.next_num) }}?title={{ title }}">&raquo;</a></li>
+      {% else %}
+        <li class="disabled"><a href="javscript:;">&raquo;</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endblock %}
+{% block extrajs %}
+  <script>
+    $(function () {
+      $('.btn-danger').on('click', function () {
+        var btn = $(this);
+
+        if (confirm('确定删除该记录吗？')) {
+          $.post(btn.attr('data-url'), function (data) {
+            if (data === 'yes') {
+              btn.parents('tr').hide();
+            } else {
+              alert('删除失败');
+            }
+          })
+        }
+      })
+    })
+  </script>
+{% endblock %}
